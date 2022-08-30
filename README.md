@@ -1,1 +1,1 @@
-# Baekjoon-algorithm
+# Baekjoon-algorithm for revision and motivation
