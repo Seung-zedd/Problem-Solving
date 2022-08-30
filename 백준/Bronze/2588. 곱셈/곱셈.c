@@ -4,7 +4,7 @@ int main(void)
 {
 	int a, b, c, d, e, f, sum ;
 	
-	scanf("%1d %1d %1d", &a,&b,&c);
+	scanf("%1d %1d %1d", &a,&b,&c); //1d는 정수를 한자리씩 입력을 받음
 	scanf("%1d %1d %1d", &d,&e,&f);
 	int num1 = a * 100 + b * 10 + c;
 	
