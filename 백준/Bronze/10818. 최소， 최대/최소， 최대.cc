@@ -9,7 +9,7 @@ int main()
 	int max = -1000001;
 	int min = 1000001;//-1000000<=N<=1000000
 	//둘째 줄은 for문으로 돌려서 배열 입력
-	int arr[N];
+	int arr[1000000]; //배열 크기 선언
 	for (int i = 0; i < N; i++)
 	{
 		cin >> arr[i];
