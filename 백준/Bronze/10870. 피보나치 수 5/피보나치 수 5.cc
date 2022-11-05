@@ -1,21 +1,24 @@
 #include <iostream>
 
 using namespace std;
-int f(int n)
-{	//f(0) = 0
-	//f(1) = 1
-	//f(2) = f(1) + f(0) = 1
-	//f(3) = f(2) + f(1) = 2
-	//... f(n) = f(n-1) + f(n-2)
-	if (n == 0) return 0;
-	if (n == 1) return 1;
-	return f(n - 1) + f(n - 2);
+//0,1,1,2,3,5,8,13...
+int fib(int n)
+{
+	int t0 = 0, t1 = 1, i, s;
+	if (n <= 1) return n;
+	for (i = 2; i <= n; i++)
+	{
+		s = t0 + t1;
+		t0 = t1;
+		t1 = s;
+	}
+	return s;
 }
+
 
 int main()
 {
 	int n;
 	cin >> n;
-	cout << f(n) << endl;
-	return 0;
+	cout << fib(n) << endl;
 }
