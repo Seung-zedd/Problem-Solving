@@ -7,6 +7,5 @@ lst = list(map(int, input().split()))
 
 for i in lst:
     if i < X:
-        print(min(i,X))
-    else:
-        pass
+        print(i,end=" ")
+   
