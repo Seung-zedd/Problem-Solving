@@ -38,7 +38,7 @@ int main()
 		}
 
 		// 모두 다른 눈이 나옴 => max value
-		else if (!(a == b && b == c && c == a))
+		else 
 		{
 
 			vector<int> v;
