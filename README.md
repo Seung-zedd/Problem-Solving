@@ -1,1 +1,1 @@
-# Baekjoon-algorithm for revision and motivation
+# 참고로, 백준 문제에서 <제한>은 제한된 테스트 케이스이므로 따로 소스코드로 안적어도 됨.
