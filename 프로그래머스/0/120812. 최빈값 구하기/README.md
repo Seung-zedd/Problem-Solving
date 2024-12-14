@@ -1,10 +1,10 @@
 # [level 0] 최빈값 구하기 - 120812 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/120812?language=python3) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/120812?language=cpp) 
 
 ### 성능 요약
 
-메모리: 10.2 MB, 시간: 0.03 ms
+메모리: 4.2 MB, 시간: 0.02 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 12월 14일 12:13:33
+2024년 12월 14일 12:35:33
 
 ### 문제 설명
 
