@@ -2,15 +2,16 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_map> // 딕셔너리 대용
+// #include <iostream>
 using namespace std;
 
 int solution(vector<int> array)
 {
     unordered_map<int, int> memo;
 
-    // 배열의 요소를 카운팅 
+    // 배열의 요소를 순회하면서 <K, V>를 저장
     for(auto& num: array) {
-        memo[num]++;
+        memo[num]++; // dict.get(key, 0) + 1와 비슷하게 동작
     }   
     
     // 최댓값 계산
@@ -20,14 +21,14 @@ int solution(vector<int> array)
     }
 
     // 최빈값 추출
-    vector<int> result;
+    int result_count = 0, mode = -1;
 
     for (const auto& pair: memo) {
         if (pair.second == max_count) {
-            result.push_back(pair.first);
+            result_count++;
+            mode = pair.first;
         }
     }
-
     // 최빈값이 여러 개인지 판단
-    return (result.size() > 1) ? -1 : result[0];
+    return (result_count > 1) ? -1 : mode;
 }
