@@ -8,14 +8,12 @@ string solution(string my_string, int n)
 {
     string answer = "";
 
-    for (int i = 0; i < my_string.size(); i++)
+    for (const auto& s : my_string)
     {
-        for (int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++)
         {
-            answer += my_string[i];
+            answer += s;
         }
-        
     }
-
     return answer;
 }
