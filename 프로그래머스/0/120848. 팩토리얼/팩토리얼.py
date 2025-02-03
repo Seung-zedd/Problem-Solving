@@ -1,15 +1,9 @@
 def solution(n):
-    # set {fact_val: num}
-    dict = {1: 1, 2: 2, 6: 3, 24: 4, 120: 5, 720: 6, 5040: 7, 40320: 8, 362880: 9, 3628800: 10}
+    fact_dict = {1: 1, 2: 2, 6: 3, 24: 4, 120: 5, 720: 6, 5040: 7, 40320: 8, 362880: 9, 3628800: 10}
     max_val = 1
 
-    # dict의 value를 리턴
-    for k in dict.keys():
-        # max값을 n보다 작을 때까지 계속 업데이트
-        if k < n:
-            max_val = k
-        elif k == n:
-            max_val = k
-            return dict[max_val]
-        else:
-            return dict[max_val]
+    for k, v in fact_dict.items():
+        if k > n:
+            return fact_dict[max_val]
+        max_val = k  # 현재까지의 최댓값 갱신
+    return fact_dict[max_val]  # 루프가 끝난 경우(k == n), max_val의 값을 반환
