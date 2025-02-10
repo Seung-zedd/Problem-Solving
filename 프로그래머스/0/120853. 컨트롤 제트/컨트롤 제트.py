@@ -1,12 +1,10 @@
 def solution(s):
     str_ls = s.split()
-    sum = 0
-    prev = 0
+    stack = []
 
     for s in str_ls:
         if s == 'Z':
-            sum -= prev
+            stack.pop()
         else:
-            prev = int(s)
-            sum += prev
-    return sum
+            stack.append(int(s))
+    return sum(stack)
