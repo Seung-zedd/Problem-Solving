@@ -5,7 +5,7 @@ def solution(keyinput, board):
     range_x = board[0] // 2
     range_y = board[1] // 2
 
-    dict = {"left": dx - 1, "right": dx + 1, "up": dy + 1, "down": dy - 1}
+    dict = {"left": -1, "right": +1, "up": +1, "down": -1}
 
     for s in keyinput:
         # 전체 범위 설정
