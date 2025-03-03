@@ -1,13 +1,8 @@
-from collections import deque
-
 def solution(board):
     r = len(board)
     c = len(board[0])
     visited = [[False] * c for i in range(r)]
     
-    # danger 카운팅
-    danger = 0
-
     def danger_search(start_x, start_y):
         visited[start_x][start_y] = True
 
