@@ -4,7 +4,7 @@ def solution(a, b):
             return n
         return gcd(d, n % d)
     gcd_val = gcd(a, b)
-    # 분수를 소수로 나타냄(float)
+    # 분수를 기약분수로 만들기 위한 분모
     denom_factor = b // gcd_val
 
     # a == b => gcd_val == b
@@ -16,4 +16,6 @@ def solution(a, b):
         denom_factor //= 2
     while denom_factor % 5 == 0:
         denom_factor //= 5
+    # 소인수 2와 5만 존재했다면 denom_factor는 1이 됨
+    # 다른 소인수가 있다면 denom_factor > 1
     return 1 if denom_factor == 1 else 2
