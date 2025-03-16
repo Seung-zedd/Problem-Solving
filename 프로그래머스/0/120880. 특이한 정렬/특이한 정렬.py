@@ -8,14 +8,12 @@ def solution(numlist, n):
         # list index out of range 문제 핸들링
         if idx == len(len_sorted_ls) - 1:
             break
-        
+
         next_dist = len_sorted_ls[idx + 1][1]
         next_num = len_sorted_ls[idx + 1][0]
         # 거리가 같고 작은 수가 앞에 있으면 스왑
         # 거리가 같은데 이미 큰 수가 앞에 있으면 스왑 x
         if dist == next_dist and next_num > num:
-            # 스왑
-            temp = len_sorted_ls[idx]
-            len_sorted_ls[idx] = len_sorted_ls[idx + 1]
-            len_sorted_ls[idx + 1] = temp
+            # 스왑(언패킹 활용)
+            len_sorted_ls[idx], len_sorted_ls[idx + 1] = len_sorted_ls[idx + 1], len_sorted_ls[idx]
     return [num for num, len in len_sorted_ls]
