@@ -5,13 +5,15 @@ def solution(numlist, n):
     len_sorted_ls = sorted(num_dist, key=lambda num: num[1])
     # len_ls를 순회하는데 거리가 같으면 더 큰 수 앞에 배치
     for idx, (num, dist) in enumerate(len_sorted_ls):
-        prev_dist = dist
         # list index out of range 문제 핸들링
         if idx == len(len_sorted_ls) - 1:
             break
+        
+        next_dist = len_sorted_ls[idx + 1][1]
+        next_num = len_sorted_ls[idx + 1][0]
         # 거리가 같고 작은 수가 앞에 있으면 스왑
         # 거리가 같은데 이미 큰 수가 앞에 있으면 스왑 x
-        if prev_dist == len_sorted_ls[idx + 1][1] and len_sorted_ls[idx + 1][0] > num:
+        if dist == next_dist and next_num > num:
             # 스왑
             temp = len_sorted_ls[idx]
             len_sorted_ls[idx] = len_sorted_ls[idx + 1]
