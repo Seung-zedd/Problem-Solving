@@ -1,9 +1,9 @@
 def solution(emergency):
-    # 1. 응급도가 높은 순서대로 먼저 정렬
+    # 1. 응급도가 높은 순서로 내림차순 정렬한다
     emergency_sorted = sorted(emergency, reverse=True)
-    # 2. 그것을 기준으로 진료 순서를 매김
-    emergency_rank = {}
-    for i in emergency_sorted:
-        emergency_rank[i] = emergency_sorted.index(i) + 1
-    # 3. 진료 순서를 정한 배열을 리턴
-    return [emergency_rank[num] for num in emergency]
+    # 2. 정렬한 리스트에 대해 진료 순서를 index + 1로 정한다
+    emergency_rank = {} # {emergency: index + 1}
+    for idx, score in enumerate(emergency_sorted):
+        emergency_rank[score] = idx + 1
+    # 3. 딕셔너리를 이용해서 value를 불러옴
+    return [emergency_rank[score] for score in emergency]
