@@ -4,7 +4,7 @@ def solution(babbling):
     babbling_ls = ["aya", "ye", "woo", "ma"]
     word = 0
     # 임의로 조합한 발음을 사용하는 경우
-    for k in range(len(babbling_ls) + 1):
+    for k in range(1, len(babbling_ls) + 1):
         bab_perm = perm(babbling_ls, k)
         bab_perm = list(bab_perm)
         temp = ""
