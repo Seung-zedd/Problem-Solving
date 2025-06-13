@@ -2,18 +2,17 @@ import java.util.*;
 
 class Solution {
     public int solution(String[] spell, String[] dic) {
-        // spell 정렬 후 dic와 매칭하기 위해 조합
         Arrays.sort(spell);
         String temp = String.join("", spell);
 
-
-        // dic 내부의 알파벳을 정렬
         for (int i = 0; i < dic.length; i++) {
-            char[] chars = dic[i].toCharArray();
+            // dic 안에서의 문자도 정렬하기 위해 char형 배열로 리턴
+            char[] chars = dic[i].toCharArray(); // String -> char[]
             Arrays.sort(chars);
-            dic[i] = new String(chars);
+            dic[i] = new String(chars); // char[] -> String
         }
 
+        // temp와 dic를 비교
         for (int i = 0; i < dic.length; i++) {
             if (temp.equals(dic[i])) {
                 return 1;
@@ -21,5 +20,6 @@ class Solution {
         }
 
         return 2;
+
     }
 }
