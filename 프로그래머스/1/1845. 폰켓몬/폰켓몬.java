@@ -2,23 +2,16 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] nums) {
-        Map<Integer, Integer> map = new HashMap<>();
+        HashSet<Integer> set = new HashSet<>();
+
         for (int i = 0; i < nums.length; i++) {
-            if (!map.containsKey(nums[i])) {
-                map.put(nums[i], 1);
-            }
-            // 키가 있으면 스킵
+            set.add(nums[i]); // 중복이 되지 않기 때문에 그대로 저장
         }
         
-        // 종류 최대 탐색
-        int sort = 0;
-        for (int i = 0; i < map.size(); i++) {
-            if (sort == nums.length / 2) {
-                break;
-            }
-            sort += map.get(nums[i]);
-
+        // 종료 조건
+        if (set.size() <= nums.length / 2) {
+            return set.size();
         }
-        return sort;
+        return nums.length / 2;
     }
 }
