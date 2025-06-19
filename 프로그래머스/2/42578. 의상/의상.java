@@ -9,14 +9,9 @@ class Solution {
         }
 
         // 안 입는 경우도 포함
-        Stack<Integer> stack = new Stack<>();
-        for (Map.Entry<String, Integer> e : map.entrySet()) {
-            stack.push(e.getValue() + 1);
-        }
-
         int answer = 1;
-        while (!stack.empty()) {
-            answer *= stack.pop();
+        for (Map.Entry<String, Integer> e : map.entrySet()) {
+            answer *= e.getValue() + 1;
         }
 
         return --answer;
