@@ -2,24 +2,25 @@ import java.util.*;
 
 class Solution {
     public int solution(String[] spell, String[] dic) {
+        // 정렬
         Arrays.sort(spell);
         String temp = String.join("", spell);
 
+        // dic 내부 문자 정렬(String -> char[])
+        //! for-each문은 값을 복사하기 때문에 수정 불가
         for (int i = 0; i < dic.length; i++) {
-            // dic 안에서의 문자도 정렬하기 위해 char형 배열로 리턴
-            char[] chars = dic[i].toCharArray(); // String -> char[]
+            char[] chars = dic[i].toCharArray();
             Arrays.sort(chars);
-            dic[i] = new String(chars); // char[] -> String
+            dic[i] = new String(chars);
         }
 
-        // temp와 dic를 비교
-        for (int i = 0; i < dic.length; i++) {
-            if (temp.equals(dic[i])) {
+        // spell과 dic 비교
+        for (String s : dic) {
+            if (temp.equals(s)) {
                 return 1;
             }
         }
 
         return 2;
-
     }
 }
