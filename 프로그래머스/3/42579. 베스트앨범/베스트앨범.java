@@ -1,60 +1,67 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        // 장르 별 재생횟수를 위한 map
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < genres.length; i++) {
-            map.merge(genres[i], plays[i], Integer::sum);
-        }
+        
+        // 1. 초기 데이터 스트림 생성: genres, plays, index를 합쳐 Music 객체 스트림으로 변환
+        return IntStream.range(0, genres.length)
+                .mapToObj(i -> new Music(genres[i], plays[i], i))
 
-        // 1. 재생횟수를 기준으로 내림차순 정렬
-        List<Map.Entry<String, Integer>> sortedGenres = new ArrayList<>(map.entrySet());
-        sortedGenres.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+                // 2. 장르 별 그룹핑
+                // Map<String, List<Music>> 생성
+                .collect(Collectors.groupingBy(Music::getGenre))
 
-        // 장르 내 재생횟수를 위한 mapMusic(장르 내 재생횟수가 다른 곡들이 있으므로 List<Music>으로 Value를 설정)
-        Map<String, List<Music>> mapMusic = new HashMap<>();
-        for (int i = 0; i < genres.length; i++) {
-            mapMusic.computeIfAbsent(genres[i], k -> new ArrayList<>()).add(new Music(plays[i], i));
-        }
+                // 3. 그룹핑된 Map을 다시 스트림으로 변환하여 장르 별 정렬 준비
+                .entrySet().stream()
 
-        // 노래 고유번호를 담기 위한 리스트(장르 종류가 100개 미만으로 랜덤해서 정적 배열로 초기화 불가)
-        List<Integer> answer = new ArrayList<>();
+                // 4. 장르 정렬 (ORDER BY SUM(plays) DESC)
+                // 각 장르(entry)의 총 재생 횟수를 계산해서 내림차순으로 정렬
+                .sorted((e1, e2) -> Integer.compare(
+                        e2.getValue().stream().mapToInt(Music::getPlay).sum(),
+                        e1.getValue().stream().mapToInt(Music::getPlay).sum()
+                ))
 
-        // 2. 장르 내 재생횟수 내림차순 정렬(if 재생횟수 같으면 인덱스 오름차순 정렬)
-        for (Map.Entry<String, Integer> e : sortedGenres) {
-            String genre = e.getKey();
+                // 5. 각 장르 내에서 노래 정렬 후, 상위 2곡 추출하고 하나의 스트림으로 합치기
+                .flatMap(e -> e.getValue().stream()
 
-            List<Music> musicList = mapMusic.get(genre);
-            musicList.sort((m1, m2) -> {
-                if (m1.playCount == m2.playCount) {
-                    return m1.index - m2.index;
-                } else {
-                    return m2.playCount - m1.playCount;
-                }
-            });
+                        // 5-1. 장르 내 노래 정렬 (ORDER BY playCount DESC, index ASC)
+                        .sorted(Comparator.comparing(Music::getPlay).reversed().thenComparing(Music::getIndex))
+                        // 5-2. 상위 2개 선택 (LIMIT 2)
+                        .limit(2)
+                )
 
-            // 3. 각 장르 별로 최대 2곡의 고유 번호를 정답 리스트에 추가
-            for (int i = 0; i < Math.min(musicList.size(), 2); i++) {
-                answer.add(musicList.get(i).index);
-            }
-            
-        }
-
-        return answer.stream().mapToInt(i -> i).toArray();
+                // 6. 최종 결과에서 노래의 고유 변호(index)만 추출
+                .mapToInt(Music::getIndex)
+                // 7. int 배열로 변환하여 변환
+                .toArray();
 
     }
 
+
     private static class Music {
-        int playCount;
+        String genre;
+        int play;
         int index;
 
-        public Music(int playCount, int index) {
-            this.playCount = playCount;
+        public Music(String genre, int play, int index) {
+            this.genre = genre;
+            this.play = play;
             this.index = index;
         }
 
+        // 스트림에서 사용하기 편하도록 getter 함수 생성
 
+        public String getGenre() {
+            return genre;
+        }
+
+        public int getPlay() {
+            return play;
+        }
+
+        public int getIndex() {
+            return index;
+        }
     }
-
 }
