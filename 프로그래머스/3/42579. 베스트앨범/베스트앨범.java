@@ -3,65 +3,61 @@ import java.util.stream.*;
 
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        
-        // 1. 초기 데이터 스트림 생성: genres, plays, index를 합쳐 Music 객체 스트림으로 변환
-        return IntStream.range(0, genres.length)
-                .mapToObj(i -> new Music(genres[i], plays[i], i))
+        // 장르 별 재생횟수를 정렬하기 위한 map
+        Map<String, Integer> map = new HashMap<>();
+        for (int i = 0; i < genres.length; i++) {
+            map.merge(genres[i], plays[i], Integer::sum);
+        }
 
-                // 2. 장르 별 그룹핑
-                // Map<String, List<Music>> 생성
-                .collect(Collectors.groupingBy(Music::getGenre))
+        // 재생횟수를 기준으로 내림차순 정렬
+        List<Map.Entry<String, Integer>> sortedGenres = new ArrayList<>(map.entrySet());
 
-                // 3. 그룹핑된 Map을 다시 스트림으로 변환하여 장르 별 정렬 준비
-                .entrySet().stream()
+        sortedGenres.sort((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()));
 
-                // 4. 장르 정렬 (ORDER BY SUM(plays) DESC)
-                // 각 장르(entry)의 총 재생 횟수를 계산해서 내림차순으로 정렬
-                .sorted((e1, e2) -> Integer.compare(
-                        e2.getValue().stream().mapToInt(Music::getPlay).sum(),
-                        e1.getValue().stream().mapToInt(Music::getPlay).sum()
-                ))
+        // 장르 내 재생횟수를 정렬하기 위한 mapMusic
+        // {key: genres, value: play, index}
+        // 객체를 저장해야 하기 때문에 computeIfAbsent()
+        // 장르 내 재생횟수가 다르기 때문에 리스트를 value로 설정
+        Map<String, List<Music>> mapMusic = new HashMap<>();
+        for (int i = 0; i < genres.length; i++) {
+            mapMusic.computeIfAbsent(genres[i], k -> new ArrayList<>()).add(new Music(plays[i], i));
+        }
 
-                // 5. 각 장르 내에서 노래 정렬 후, 상위 2곡 추출하고 하나의 스트림으로 합치기
-                .flatMap(e -> e.getValue().stream()
+        // 노래의 고유번호를 저장하기 위한 리스트
+        List<Integer> answer = new ArrayList<>();
 
-                        // 5-1. 장르 내 노래 정렬 (ORDER BY playCount DESC, index ASC)
-                        .sorted(Comparator.comparing(Music::getPlay).reversed().thenComparing(Music::getIndex))
-                        // 5-2. 상위 2개 선택 (LIMIT 2)
-                        .limit(2)
-                )
+        // genres[i]를 이용해서 sortedGenres -> mapMusic 전환
+        for (Map.Entry<String, Integer> e : sortedGenres) {
+            String key = e.getKey();
+            List<Music> musicList = mapMusic.get(key);
 
-                // 6. 최종 결과에서 노래의 고유 변호(index)만 추출
-                .mapToInt(Music::getIndex)
-                // 7. int 배열로 변환하여 변환
-                .toArray();
+            // 장르 내 재생횟수 내림차순 정렬(if 재생횟수 same: 인덱스 오름차순)
+            musicList.sort((m1, m2) ->
+            {
+                if (m1.play == m2.play) {
+                    return Integer.compare(m1.index, m2.index);
+                } else {
+                    return Integer.compare(m2.play, m1.play);
+                }
+            });
+
+            for (int i = 0; i < Math.min(musicList.size(), 2); i++) {
+                answer.add(musicList.get(i).index);
+            }
+        }
+
+        // Integer -> int
+        return answer.stream().mapToInt(i -> i).toArray();
 
     }
 
-
     private static class Music {
-        String genre;
         int play;
         int index;
 
-        public Music(String genre, int play, int index) {
-            this.genre = genre;
+        public Music(int play, int index) {
             this.play = play;
             this.index = index;
-        }
-
-        // 스트림에서 사용하기 편하도록 getter 함수 생성
-
-        public String getGenre() {
-            return genre;
-        }
-
-        public int getPlay() {
-            return play;
-        }
-
-        public int getIndex() {
-            return index;
         }
     }
 }
