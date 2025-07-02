@@ -1,0 +1,41 @@
+# 워크플로우의 이름
+name: Sync main to review branch
+
+# 언제 이 워크플로우를 실행할지 정의
+on:
+  # main 브랜치에 푸시 이벤트가 발생했을 때
+  push:
+    branches:
+      - main
+
+# 실행할 작업들의 목록
+jobs:
+  sync:
+    # 이 작업은 최신 우분투 환경에서 실행됩니다.
+    runs-on: ubuntu-latest
+    steps:
+      # 1. GitHub Actions가 코드에 접근할 수 있도록 레포지토리를 체크아웃합니다.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # 모든 브랜치와 커밋 기록을 가져옵니다.
+          fetch-depth: 0
+
+      # 2. 자동 커밋을 위한 Git 유저 정보를 설정합니다.
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      # 3. main 브랜치의 변경사항을 review 브랜치로 병합하고 푸시합니다.
+      - name: Merge main into review and push
+        run: |
+          # 'review' 브랜치로 이동합니다.
+          git checkout review
+
+          # 'main' 브랜치의 최신 내용을 'review' 브랜치로 병합합니다.
+          # "chore: Auto-sync from main" 라는 메시지로 자동 커밋됩니다.
+          git merge origin/main -m "chore: Auto-sync from main"
+
+          # 변경된 'review' 브랜치를 다시 GitHub로 푸시합니다.
+          git push origin review
