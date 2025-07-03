@@ -39,3 +39,24 @@ jobs:
 
           # 변경된 'review' 브랜치를 다시 GitHub로 푸시합니다.
           git push origin review
+
+      # 4. 'review' -> 'main'으로 Pull Request를 생성합니다. (가장 큰 변경점)
+      - name: Create Pull Request if not exists
+        env:
+          # PR 생성 권한을 위해 GitHub 토큰을 사용합니다.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 'review' 브랜치에서 'main' 브랜치로 가는 PR이 이미 열려 있는지 확인합니다.
+          existing_pr=$(gh pr list --head review --base main --state open --json number)
+          
+          # 이미 열린 PR이 없다면 (결과가 '[]' 라면) 새로 생성합니다.
+          if [ "$existing_pr" == "[]" ]; then
+            echo "Creating a new pull request."
+            gh pr create \
+              --base main \
+              --head review \
+              --title "🤖 [Auto PR] Review changes from main" \
+              --body "This PR was automatically created by a GitHub Action. Please review the changes and merge when ready. /cc @Seung-zedd"
+          else
+            echo "An open pull request from 'review' to 'main' already exists."
+          fi
