@@ -1,24 +1,29 @@
+# .github/workflows/sync-main-to-review.yml
+
 # 워크플로우의 이름
-name: Sync main to review branch
+name: Sync main, Create PR to main
 
 # 언제 이 워크플로우를 실행할지 정의
 on:
-  # main 브랜치에 푸시 이벤트가 발생했을 때
   push:
     branches:
       - main
 
 # 실행할 작업들의 목록
 jobs:
-  sync:
-    # 이 작업은 최신 우분투 환경에서 실행됩니다.
+  sync-and-pr: # job 이름 변경 (가독성)
     runs-on: ubuntu-latest
+    
+    # [가장 중요한 변경점] 이 작업에 필요한 권한을 명시적으로 부여합니다.
+    permissions:
+      contents: write      # 레포지토리 코드를 체크아웃하고, 커밋하고, 푸시할 권한
+      pull-requests: write # Pull Request를 생성할 권한
+
     steps:
       # 1. GitHub Actions가 코드에 접근할 수 있도록 레포지토리를 체크아웃합니다.
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # 모든 브랜치와 커밋 기록을 가져옵니다.
           fetch-depth: 0
 
       # 2. 자동 커밋을 위한 Git 유저 정보를 설정합니다.
@@ -30,20 +35,13 @@ jobs:
       # 3. main 브랜치의 변경사항을 review 브랜치로 병합하고 푸시합니다.
       - name: Merge main into review and push
         run: |
-          # 'review' 브랜치로 이동합니다.
           git checkout review
-
-          # 'main' 브랜치의 최신 내용을 'review' 브랜치로 병합합니다.
-          # "chore: Auto-sync from main" 라는 메시지로 자동 커밋됩니다.
           git merge origin/main -m "chore: Auto-sync from main"
-
-          # 변경된 'review' 브랜치를 다시 GitHub로 푸시합니다.
           git push origin review
 
-      # 4. 'review' -> 'main'으로 Pull Request를 생성합니다. (가장 큰 변경점)
+      # 4. 'review' -> 'main'으로 Pull Request를 생성합니다.
       - name: Create Pull Request if not exists
         env:
-          # PR 생성 권한을 위해 GitHub 토큰을 사용합니다.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 'review' 브랜치에서 'main' 브랜치로 가는 PR이 이미 열려 있는지 확인합니다.
