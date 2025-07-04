@@ -4,8 +4,6 @@ class Solution {
     public int solution(int[] priorities, int location) {
         // 큐로 초기화
         Queue<Process> q = new LinkedList<>();
-        // 타겟 프로세스 설정
-        int targetProc = priorities[location];
         int execCount = 0; // 프로세스 실행 횟수
 
         // 엣지 케이스(우선순위 배열 길이가 1일 때는 count + 1을 리턴)
@@ -43,9 +41,10 @@ class Solution {
                 //  3. 만약 그런 프로세스가 없다면 방금 꺼낸 프로세스를 실행합니다.
                 execCount++;
                 // 해당 프로세스를 실행시키고 나서
-                // 해당 프로세스(프로세스의 우선순위도 고려해야함)가 몇 번째로 실행되는지 return
-                // 현재 프로세스의 우선순위가 타겟 프로세스와 같고 현재 프로세스의 인덱스가 location과 같다면 실행횟수를 리턴
-                if (curVal == targetProc && curIdx == location) {
+                // 요구사항: 해당 프로세스가 몇 번째로 실행되는지 return을 수행
+                // 현재 프로세스의 인덱스가 location과 같다면 실행횟수를 리턴
+                //! 이미 큐 내에서 현재 인덱스와 파라미터의 location을 비교하고 있기 때문에 targetProc은 불필요
+                if (curIdx == location) {
                     return execCount;
                 }
             }
