@@ -2,41 +2,49 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] priorities, int location) {
-        // 1. 우선순위 큐에는 우선순위 값만 내림차순으로 저장
-        //? 가장 높은 값을 빠르게 peek 하기 위해
-        PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
-
-        for (int priority : priorities) {
-            pq.offer(priority);
-        }
-
-        // 2. 일반 큐에는 원래 순서를 지키기 위해 프로세스(우선순위, 인덱스)를 삽입
+        // 대기 큐 초기화
         Queue<Process> q = new LinkedList<>();
+        int count = 0;
 
+        // 큐에 우선순위 배열 삽입
         for (int i = 0; i < priorities.length; i++) {
             q.offer(new Process(priorities[i], i));
         }
 
-        int exeCount = 0; // 실행횟수
-
+        // edge case
+        if (priorities.length == 1) {
+            return count + 1;
+        }
+        
         // 규칙 적용 시작
         while (!q.isEmpty()) {
+            // 규칙1: 대기 큐에 있는 프로세스를 꺼낸다.
             Process curProc = q.poll();
+            int curVal = curProc.priority;
+            int curIdx = curProc.idx;
 
-            // 현재 남아있는 가장 높은 우선순위(pq.peek())와 비교
-            if (curProc.priority == pq.peek()) {
-                exeCount++;
-                pq.poll(); // 가장 높은 우선순위가 실행되었으므로 우선순위 큐에서도 제거
-                if (curProc.idx == location) {
-                    return exeCount;
-                }
+            // 반복자를 통해 우선순위 최댓값 탑색
+            int maxVal = 0;
+            Iterator<Process> maxIter = q.iterator();
+            //! for-each문은 ConcurrentModifiedException 터짐
+            while (maxIter.hasNext()) {
+                Process cur = maxIter.next();
+                int nextVal = cur.priority;
+                maxVal = Math.max(maxVal, nextVal);
+            }
+
+            // 규칙2: 현재 프로세스보다 대기 큐에 더 우선순위가 높으면 다시 푸시
+            if (curVal < maxVal) {
+                q.offer(new Process(curVal, curIdx));
             } else {
-                // 대기 큐에 더 높은 우선순위가 존재한다면 대기 큐에 다시 삽입
-                q.offer(curProc);
+                count++;
+                if (curIdx == location) {
+                    return count;
+                }
             }
         }
-
-        return exeCount;
+        
+        return count;
     }
 
     private static class Process {
