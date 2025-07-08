@@ -3,12 +3,7 @@ import java.util.stream.*;
 
 class Solution {
     public int solution(int[] nums) {
-        Set<Integer> set = new HashSet<>();
-
-        for (int i : nums) {
-            set.add(i);
-        }
-
+        Set<Integer> set = new HashSet<>(Arrays.stream(nums).boxed().collect(Collectors.toSet()));
         return Math.min(set.size(), nums.length / 2);
     }
 }
