@@ -2,46 +2,35 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] priorities, int location) {
-        // 큐 초기화 및 삽입
+        // 우선순위 전용 우선순위 큐
+        // 내림차순 정렬
+        PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
+
+        for (int p : priorities) {
+            pq.offer(p);
+        }
+
+        // 프로세스(우선순위, 인덱스)전용 큐 초기화
         Queue<Process> q = new LinkedList<>();
         for (int i = 0; i < priorities.length; i++) {
             q.offer(new Process(priorities[i], i));
         }
 
+        // 규칙 적용
         int count = 0;
-
-        // 엣지 케이스
-        if (priorities.length == 1) {
-            return count + 1;
-        }
-
-        // 규칙 시작
         while (!q.isEmpty()) {
-            // 규칙1
             Process curProc = q.poll();
-            int curVal = curProc.priority;
-            int curIdx = curProc.idx;
-
-            // 우선순위 최댓값 탐색
-            int maxVal = 0;
-            Iterator<Process> iter = q.iterator();
-            while (iter.hasNext()) {
-                Process nextProc = iter.next();
-                int nextVal = nextProc.priority;
-                maxVal = Math.max(nextVal, maxVal);
-            }
-
-            // 규칙2
-            if (curVal < maxVal) {
+            if (curProc.priority < pq.peek()) {
                 q.offer(curProc);
             } else {
+                pq.poll();
                 count++;
-                if (curIdx == location) {
+                if (curProc.idx == location) {
                     return count;
                 }
             }
         }
-        
+
         return count;
     }
 
@@ -53,5 +42,6 @@ class Solution {
             this.priority = priority;
             this.idx = idx;
         }
+
     }
 }
