@@ -1,7 +1,0 @@
-# .coderabbit.yml
-
-# CodeRabbit 리뷰 프로필을 'STRICT'로 설정
-profile: 'STRICT'
-
-# 언어 설정
-language: 'ko'
