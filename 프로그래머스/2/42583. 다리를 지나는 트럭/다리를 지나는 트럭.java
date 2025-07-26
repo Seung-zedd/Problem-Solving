@@ -2,43 +2,44 @@ import java.util.*;
 
 class Solution {
     public int solution(int bridge_length, int weight, int[] truck_weights) {
-        // 대기 큐 초기화
-        Queue<Truck> waitingQ = new LinkedList<>();
-        // 트럭 무게를 대기 큐에 삽입
-        for (int w : truck_weights) {
-            waitingQ.offer(new Truck(w, 0)); // 아직 다리에 진입하지 않았으므로 0으로 초기화
+        // 트럭 대기 큐
+        Queue<Truck> readyQ = new LinkedList<>();
+
+        for (int t : truck_weights) {
+            readyQ.offer(new Truck(t, 0));
         }
 
-        // 다리 큐 초기화
-        // 다리 길이 및 무게 비교하기 위함
+        // 다리 큐
         Queue<Truck> bridgeQ = new LinkedList<>();
-        int time = 0; // 시뮬레이션을 위한 전체 시간
-        int totalWeightOnBridge = 0; // 다리 위의 트럭 무게 합산
 
+        // 시뮬레이션 시작
+        int time = 0;
+        int totalTruckWeight = 0; // 다리 무게와 비교
 
-        // 대기 큐와 다리 큐가 비어있지 않을 때까지 시뮬레이션 실행
-        while (!waitingQ.isEmpty() || !bridgeQ.isEmpty()) {
+        // 종료 조건: 모든 트럭이 다리를 건넜을 때 == 대기큐와 다리큐가 모두 비었을 때 false가 되서 time을 리턴
+        while (!readyQ.isEmpty() || !bridgeQ.isEmpty()) {
             time++;
-            // 정산 후 행동, 즉 선 제거 후 삽입을 구현한다
-            // 동일한 시간에서 하나의 행동을 완수해야 하기 때문에 while문 대신 if문으로 구현
-            if(!bridgeQ.isEmpty()) {
-                // 현재 시간 - 트럭의 진입시간 == 다리 길이 => 다리를 다 건넜음
-                if (time - bridgeQ.peek().entryTime == bridge_length) {
-                    Truck rearTruck = bridgeQ.poll();
-                    totalWeightOnBridge -= rearTruck.truckWeight;
-                }
+
+            // 다리를 건넌 후(선 제거 따로)
+            //* Settle then Act: 선 제거, 후 삽입
+            //? 다리에 도착했다는 것을 어떻게 알지? -> time - entryTime == bridge_length면 bridgeQ.poll()
+            if (!bridgeQ.isEmpty() && time - bridgeQ.peek().entryTime == bridge_length) {
+                Truck nextTruck = bridgeQ.poll();
+                totalTruckWeight -= nextTruck.weight;
             }
 
-
-            // 후 삽입
-            // 위와 동문
-            if (!waitingQ.isEmpty()) {
-                // 진입하기 전의 트럭 무게 + 총 트럭의 무게 <= 다리 무게면 진입 허용
-                if (waitingQ.peek().truckWeight + totalWeightOnBridge <= weight && bridgeQ.size() < bridge_length) {
-                    Truck frontTruck = waitingQ.poll();
-                    frontTruck.entryTime = time;
-                    bridgeQ.offer(new Truck(frontTruck.truckWeight, frontTruck.entryTime));
-                    totalWeightOnBridge += frontTruck.truckWeight; // 다리에 진입했으므로 무게를 합산
+            // 다리를 건너기 전(후 삽입 따로)
+            // 다리에는 트럭이 최대 bridge_length대 올라갈 수 있으며, 다리는 weight 이하까지의 무게를 견딜 수 있습니다.
+            //? readyQ.peek()이 null이 될 수 있으므로 안전하게 if문으로 방어
+            if (!readyQ.isEmpty()) {
+                // 레디 큐에서 제거하기 전에 peek()로 다리 조건 검사
+                if (readyQ.peek().weight + totalTruckWeight <= weight && bridgeQ.size() <= bridge_length) {
+                    // 조건이 맞으면 대기 큐에서 제거를 함으로써 변하는 totalTruckWeight에 맞춤
+                    Truck curTruck = readyQ.poll();
+                    curTruck.entryTime = time;
+                    // 다리를 건너는 중
+                    bridgeQ.offer(curTruck);
+                    totalTruckWeight += curTruck.weight;
                 }
             }
         }
@@ -47,14 +48,12 @@ class Solution {
     }
 
     private static class Truck {
-        int truckWeight;
+        int weight;
         int entryTime;
 
-        public Truck(int truckWeight, int entryTime) {
-            this.truckWeight = truckWeight;
+        public Truck(int weight, int entryTime) {
+            this.weight = weight;
             this.entryTime = entryTime;
         }
     }
-
-
 }
