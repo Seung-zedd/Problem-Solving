@@ -2,35 +2,33 @@ import java.util.*;
 
 class Solution {
     public int solution(int bridge_length, int weight, int[] truck_weights) {
+        // 대기 큐에 트럭 총 무게 삽입
         Queue<Truck> waitingQ = new LinkedList<>();
 
-        // 대기 큐에 트럭들 삽입
         for (int t : truck_weights) {
             waitingQ.offer(new Truck(t, 0));
         }
 
-        // 다리 큐
-        Queue<Truck> bridgeQ = new LinkedList<>();
-        int totalTruckWeight = 0;
-
         // 시뮬레이션 시작
-        // 종료조건: 대기큐에 트럭이 없고 && 다리큐에 트럭이 없을 때
+        Queue<Truck> bridgeQ = new LinkedList<>();
         int time = 0;
+        int totalWeight = 0;
+
         while (!waitingQ.isEmpty() || !bridgeQ.isEmpty()) {
             time++;
 
-            // Settle And Act(선 제거, 후 삽입)
+            // 2. 다리를 건넌 후(동일한 시간에서 삽입과 삭제를 수행해야 하므로)
             if (!bridgeQ.isEmpty() && time - bridgeQ.peek().entryTime == bridge_length) {
                 Truck exitTruck = bridgeQ.poll();
-                totalTruckWeight -= exitTruck.weight;
+                totalWeight -= exitTruck.tWeight; // 다리를 완전히 건넜으면 무게 감소
             }
 
-            // 다리에 진입할 때
-            // 다리의 무게와 길이를 고려
-            if (!waitingQ.isEmpty() &&  waitingQ.peek().weight + totalTruckWeight <= weight && bridgeQ.size() < bridge_length) {
+            // 1. 다리를 건너기 전
+            if (!waitingQ.isEmpty() && waitingQ.peek().tWeight + totalWeight <= weight && bridgeQ.size() < bridge_length) {
                 Truck entryTruck = waitingQ.poll();
-                bridgeQ.offer(new Truck(entryTruck.weight, time));
-                totalTruckWeight += entryTruck.weight;
+                entryTruck.entryTime = time; // 흘러간 시간을 트럭의 진입 시간으로 설정
+                bridgeQ.offer(entryTruck);
+                totalWeight += entryTruck.tWeight; // 다리에 진입한 트럭의 무게를 더함
             }
         }
 
@@ -38,12 +36,13 @@ class Solution {
     }
 
     private static class Truck {
-        int weight;
+        int tWeight;
         int entryTime;
 
-        public Truck(int weight, int entryTime) {
-            this.weight = weight;
+        public Truck(int tWeight, int entryTime) {
+            this.tWeight = tWeight;
             this.entryTime = entryTime;
         }
+
     }
 }
