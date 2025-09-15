@@ -1,64 +1,58 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        Map<String, Integer> map = new HashMap<>();
+        // 장르별 노래 재생횟수를 집계하기 위한 맵
+        Map<String, Integer> genreMap = new HashMap<>();
 
-        // 장르별 곡 먼저 map에 초기화
+        // 장르와 재생횟수 길이는 같음
         for (int i = 0; i < genres.length; i++) {
-            map.merge(genres[i], plays[i], Integer::sum);
+            genreMap.merge(genres[i], plays[i], Integer::sum);
         }
 
-        // 장르별 내림차순 정렬
-        // map 자체로는 sort()를 사용 못하기 때문에 ArrayList로 초기화한 후 sort() 사용해서 내림차순 정렬
-        List<Map.Entry<String, Integer>> sortedGenre = new ArrayList<>(map.entrySet());
+        // 많이 재생된 장르를 먼저 수록하기 위해 내림차순 정렬
+        //! sorted는 원본 컬렉션을 정렬해주지 않음
+        List<Map.Entry<String, Integer>> genreList = new ArrayList<>(genreMap.entrySet());
+        genreList.sort((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()));
 
-        sortedGenre.sort((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()));
-
-        // 장르내 수록
-        //? 특정 장르 내에서 곡이 전부 다르기 때문에 List를 value로 설정
-        //! if Music 객체를 그냥 value로 사용하면 값이 덮어씌워지게 됨
+        // 장르 내에서 많이 재생된 노래를 수록
+        // 고유 번호를 담아야 되서 커스텀 클래스를 사용
+        //! val을 Music으로만 하면 덮어씌워지기 때문
         Map<String, List<Music>> musicMap = new HashMap<>();
 
-        for (int i = 0; i < genres.length; i++) {
-            //? merge()는 사칙연산에 사용되기 때문에 computeIfAbsent()로 리스트를 추가해나감
-            musicMap.computeIfAbsent(genres[i], k -> new ArrayList<>()).add(new Music(plays[i], i));
+        for (int i = 0; i < plays.length; i++) {
+            musicMap.computeIfAbsent(genres[i], k -> new ArrayList<>()).add(new Music(i, plays[i]));
         }
 
-        List<Integer> ans = new ArrayList<>();
+        // 내림차순 정렬된 genreMap에서 key를 매핑해서 장르 내 재생횟수 탐색
+        //! 장르별로 2개씩 베스트 앨범에 수록에서 리턴
+        List<Integer> bestAlbum = new ArrayList<>();
 
-        // 장르 곡 -> 장르 내 수록
-        // 장르 곡의 key를 가져와서 장르 내 정렬 알고리즘 수행
-        //? 어짜피 map과 다른 musicMap에서 get() 연산을 하기 때문에 굳이 entrySet()으로 순회하지 않아도 됨
-        for (Map.Entry<String, Integer> e : sortedGenre) {
-            String key = e.getKey();
+        for (Map.Entry<String, Integer> entry : genreList) {
+            String key = entry.getKey();
             List<Music> musicList = musicMap.get(key);
 
+            // 정렬만 수행
             musicList.sort((m1, m2) ->
-            {
-                if (m1.play == m2.play) {
-                    return Integer.compare(m1.idx, m2.idx);
-                } else {
-                    return Integer.compare(m2.play, m1.play);
-                }
-            });
+                            m1.playCount == m2.playCount ? Integer.compare(m1.idx, m2.idx) : Integer.compare(m2.playCount, m1.playCount));
 
+            // 베스트앨범 수록
             for (int i = 0; i < Math.min(2, musicList.size()); i++) {
-                ans.add(musicList.get(i).idx);
+                bestAlbum.add(musicList.get(i).idx);
             }
         }
-        
-        // mapToInt()를 사용해서 Integer -> int로 언박싱
-        return ans.stream().mapToInt(i -> i).toArray();
+
+        return bestAlbum.stream().mapToInt(Integer::intValue).toArray();
     }
 
     private static class Music {
-        int play;
         int idx;
+        int playCount;
 
-        public Music(int play, int idx) {
-            this.play = play;
+        public Music(int idx, int playCount) {
             this.idx = idx;
+            this.playCount = playCount;
         }
     }
 }
