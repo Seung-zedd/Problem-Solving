@@ -2,9 +2,9 @@ import java.util.*;
 
 class Solution {
     public int solution(int bridge_length, int weight, int[] truck_weights) {
-        // 대기 큐에 트럭 총 무게 삽입
+        // 정해진 순으로 건너야 하기 때문에 대기 큐에 트럭 배열 삽입 후 초기화
+        // 1. 다리에 오르기 전
         Queue<Truck> waitingQ = new LinkedList<>();
-
         for (int t : truck_weights) {
             waitingQ.offer(new Truck(t, 0));
         }
@@ -17,18 +17,18 @@ class Solution {
         while (!waitingQ.isEmpty() || !bridgeQ.isEmpty()) {
             time++;
 
-            // 2. 다리를 건넌 후(동일한 시간에서 삽입과 삭제를 수행해야 하므로)
+            // 선 제거, 후 삽입
             if (!bridgeQ.isEmpty() && time - bridgeQ.peek().entryTime == bridge_length) {
                 Truck exitTruck = bridgeQ.poll();
-                totalWeight -= exitTruck.tWeight; // 다리를 완전히 건넜으면 무게 감소
+                totalWeight -= exitTruck.tWeight;
             }
 
-            // 1. 다리를 건너기 전
             if (!waitingQ.isEmpty() && waitingQ.peek().tWeight + totalWeight <= weight && bridgeQ.size() < bridge_length) {
-                Truck entryTruck = waitingQ.poll();
-                entryTruck.entryTime = time; // 흘러간 시간을 트럭의 진입 시간으로 설정
-                bridgeQ.offer(entryTruck);
-                totalWeight += entryTruck.tWeight; // 다리에 진입한 트럭의 무게를 더함
+                Truck curTruck = waitingQ.poll();
+                curTruck.entryTime = time;
+
+                bridgeQ.offer(curTruck);
+                totalWeight += curTruck.tWeight;
             }
         }
 
@@ -43,6 +43,5 @@ class Solution {
             this.tWeight = tWeight;
             this.entryTime = entryTime;
         }
-
     }
 }
