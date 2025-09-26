@@ -1,40 +1,38 @@
 import java.util.*;
+import java.util.stream.*;
 
 class Solution {
     public int[] solution(int N, int[] stages) {
-        // 1. 도전자의 수 계산
-        // 0~N ->1~N+1 && N단계까지 클리어한 수
-        int[] challenger = new int[N + 2];
+        // 0은 dummy slot이라 공간 1 추가 + (N+1)에 해당하는 도전자 수도 할당해야 하므로 공간 1 추가
+        int[] challengers = new int[N + 2];
 
-        // stage 번호에 따른 도전자의 수 1씩 증가
-        for (int stage : stages) {
-            challenger[stage] += 1;
+        for (int i : stages) {
+            challengers[i] += 1; // 각 원소는 현재 도전 중인 스테이지의 번호를 나타내므로 도전자 1 증가
         }
 
-        // 실패율 계산
-        Map<Integer, Double> failRate = new HashMap<>();
-        double total = stages.length;
+        // 실패율 계산: 스테이지 번호 N에 종속됨
+        // key: stage 번호, value: 실패율
+        int remain = stages.length; // 스테이지 길이는 각 테케마다 고정적이므로 전역변수로 설정
 
-        // i는 스테이지 번호에 맞춘다.
+        Map<Integer, Double> failMap = new HashMap<>();
+        // 입출력 예시를 통해 N번까지를 조건식으로 설정하면 됨
         for (int i = 1; i < N + 1; i++) {
-            // edge case: 스테이지에 도달한 유저가 없는 경우 해당 스테이지의 실패율은 0 으로 정의한다.
-            if (challenger[i] == 0) {
-                failRate.put(i, 0.0);
+            // 스테이지에 도달한 유저가 없는 경우 해당 스테이지의 실패율은 0 으로 정의
+            if (challengers[i] == 0) {
+                failMap.put(i, 0.);
             } else {
-                failRate.put(i, challenger[i] / total);
-                total -= challenger[i];
+                double failRate = (double) challengers[i] / remain;
+                failMap.put(i, failRate);
+                remain -= challengers[i];
             }
         }
 
-        // 실패율이 높은 스테이지부터 내림차순
-        // if (실패율이 같은 스테이지가 있다면): 작은 번호의 스테이지가 먼저 오도록 하면 된다.
-        List<Map.Entry<Integer, Double>> sortedList = new ArrayList<>(failRate.entrySet());
+        // 실패율이 높은 스테이지부터 내림차순으로 스테이지의 번호가 담겨있는 배열을 return
+        // 만약 실패율이 같은 스테이지가 있다면 작은 번호의 스테이지가 먼저 오도록 하면 된다.
+        List<Map.Entry<Integer, Double>> failList = new ArrayList<>(failMap.entrySet());
 
-        // 삼항 연산자
-        return sortedList
-                .stream()
-                .sorted((s1, s2) ->
-                        s1.getValue().equals(s2.getValue()) ? Integer.compare(s1.getKey(), s2.getKey()) : Double.compare(s2.getValue(), s1.getValue())
-                ).mapToInt(Map.Entry::getKey).toArray();
+        failList.sort((e1, e2) -> e1.getValue() == e2.getValue() ? Integer.compare(e1.getKey(), e2.getKey()) : Double.compare(e2.getValue(), e1.getValue()));
+
+        return failList.stream().mapToInt(Map.Entry::getKey).toArray();
     }
 }
