@@ -2,36 +2,37 @@ import java.util.*;
 
 class Solution {
     public int[] solution(int[] answers) {
-        // 수포자의 패턴을 먼저 분석
-        int[][] pattern = {
+        // 수포자 패턴 분석
+        int[][] patterns = {
                 {1, 2, 3, 4, 5},
                 {2, 1, 2, 3, 2, 4, 2, 5},
                 {3, 3, 1, 1, 2, 2, 4, 4, 5, 5}
         };
 
-        // 수포자의 정답을 맞춘 개수 카운팅
+        // 정답 카운팅하기 위한 scores 배열 초기화
         int[] scores = new int[3];
-        int maxScore = Integer.MIN_VALUE;
 
-        // 정답과 수포자의 패턴 비교
+        // 패턴과 정답 비교
         for (int i = 0; i < answers.length; i++) {
-            for (int j = 0; j < pattern.length; j++) {
-                if (answers[i] == pattern[j][i % pattern[j].length]) {
+            for (int j = 0; j < patterns.length; j++) {
+                if (answers[i] == patterns[j][i % patterns[j].length]) {
                     scores[j]++;
                 }
             }
         }
 
-        // 최고점 파악
-        for (int score : scores) {
-            maxScore = Math.max(maxScore, score);
+        int maxVal = Integer.MIN_VALUE;
+
+        // 최고 점수 업데이트
+        for (int s : scores) {
+            maxVal = Math.max(maxVal, s);
         }
 
-        // 수포자 번호를 저장하기 위한 리스트
+        // 가장 높은 점수를 리턴하기 위한 리스트
         List<Integer> numList = new ArrayList<>();
 
         for (int i = 0; i < scores.length; i++) {
-            if (scores[i] == maxScore) {
+            if (scores[i] == maxVal) {
                 numList.add(i + 1);
             }
         }
