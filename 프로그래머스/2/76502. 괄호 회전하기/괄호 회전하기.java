@@ -23,13 +23,10 @@ class Solution {
     private static int rotateWithStreams(String s, int k) {
         // 왼쪽으로 1번만 회전
         //! 길지 않은 문자열 끼리는 + 연산자로 더할 수 있음
-        if (k == 0) {
-            return isValidParenthesis(s) ? 1 : 0;
-        } else {
-            String result = s.substring(k) + s.substring(0, k);
-            // 왼쪽 회전 결과를 파라미터로 넘겨서 괄호 유효성 검사 함수 호출
-            return isValidParenthesis(result) ? 1 : 0;
-        }
+        String result = s.substring(k) + s.substring(0, k);
+        // 왼쪽 회전 결과를 파라미터로 넘겨서 괄호 유효성 검사 함수 호출
+        return isValidParenthesis(result) ? 1 : 0;
+
     }
 
 
