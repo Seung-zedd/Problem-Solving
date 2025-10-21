@@ -4,12 +4,11 @@ class Solution {
         int minC = Integer.MAX_VALUE;
         int maxR = Integer.MIN_VALUE;
         int maxC = Integer.MIN_VALUE;
-        
-        // i = row, j = col
+
+        // i is row, j is col respectively.
         for (int i = 0; i < wallpaper.length; i++) {
             for (int j = 0; j < wallpaper[i].length(); j++) {
                 if (wallpaper[i].charAt(j) == '#') {
-                    // 좌표 최빈값 저장
                     minR = Math.min(minR, i);
                     minC = Math.min(minC, j);
                     maxR = Math.max(maxR, i);
