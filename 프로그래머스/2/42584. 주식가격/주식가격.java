@@ -1,41 +1,35 @@
+
 import java.util.*;
 
 class Solution {
     public int[] solution(int[] prices) {
+        // 떨어지지 않은 텀을 담기 위한 리스트
         int[] answer = new int[prices.length];
 
-        // 스택 초기화
-        Stack<Stock> s = new Stack<>();
+        // 특정 조건을 체크하기 위한 컬렉션: 스택
+        // s[0] = price, s[1] = idx
+        Stack<int[]> s = new Stack<>();
+
 
         for (int i = 0; i < prices.length; i++) {
-            // 과거 가격 > 현재 가격이면 stack.pop()
-            while (!s.isEmpty() && (s.peek().stockPrice > prices[i])) {
-                Stock stock = s.pop();
-                int idx = stock.idx;
-                answer[idx] = i - idx; // 1초간 가격이 떨어지지 않음
+            // 현재 가격보다 과거의 가격이 높으면
+            //! while문으로 처리해야 하는 이유: 스택에 남아있는 원소들이 현재 가격보다 계속 높을 수 있기 때문
+            while (!s.isEmpty() && s.peek()[0] > prices[i]) {
+                int prevSec = s.pop()[1];
+                int term = i - prevSec;
+                answer[prevSec] = term;
             }
 
-            s.push(new Stock(prices[i], i));
-
+            s.push(new int[]{prices[i], i});
         }
 
-        Iterator<Stock> iter = s.iterator();
-        while (iter.hasNext()) {
-            Stock next = iter.next();
-            int idx = next.idx;
-            answer[idx] = (prices.length - 1) - idx;
+        // 남아있는 스택을 처리, 즉 가격이 떨어지지 않은 주식가격들의 기간을 계산
+        while (!s.isEmpty()) {
+            int prevSec = s.pop()[1];
+            int term = (prices.length - 1) - prevSec;
+            answer[prevSec] = term;
         }
 
         return answer;
-    }
-
-    private static class Stock {
-        int stockPrice;
-        int idx;
-
-        public Stock(int stockPrice, int idx) {
-            this.stockPrice = stockPrice;
-            this.idx = idx;
-        }
     }
 }
