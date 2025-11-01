@@ -3,43 +3,43 @@ import java.util.*;
 class Solution {
     public int solution(String s) {
         int count = 0;
-
+        // s를 먼저 순회
         for (int i = 0; i < s.length(); i++) {
-            count += rotateToLeft(s, i);
+            // s를 i만큼 회전
+             count += rotateWithLeft(s, i);
         }
 
         return count;
     }
 
-    private static int rotateToLeft(String s, int k) {
-        String result = s.substring(k) + s.substring(0, k);
+    private static int rotateWithLeft(String s, int i) {
+        String result = s.substring(i) + s.substring(0, i);
+
         return isValidParenthesis(result) ? 1 : 0;
     }
 
     private static boolean isValidParenthesis(String str) {
-        Stack<Character> stack = new Stack<>();
+        Stack<Character> s = new Stack<>();
 
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-
-            // 열린괄호 먼저 처리
+            // 열린 괄호면
             if (c == '(' || c == '{' || c == '[') {
-                stack.push(c);
+                s.push(c);
             } else {
-                // 닫힌 괄호인데 스택이 비어있지 않다면
-                if (!stack.isEmpty()) {
-                    // 짝을 맞춰서
-                    if (stack.peek() == '(' && c == ')' || stack.peek() == '{' && c == '}' || stack.peek() == '[' && c == ']') {
-                        // 팝을 시킨다
-                        stack.pop();
+                // 스택이 비지 않았을 때 짝을 맞춘다
+                if (!s.isEmpty()) {
+                    if (s.peek() == '(' && c == ')' || s.peek() == '{' && c == '}' || s.peek() == '[' && c == ']') {
+                        s.pop();
                     }
                 } else {
-                    // 스택이 비어있고 닫힌 괄호는 무조건 false
+                    //닫힌 괄호가 나오면 무조건 false
                     return false;
                 }
             }
         }
 
-        return stack.isEmpty();
+        return s.isEmpty();
     }
-}
+
+    }
