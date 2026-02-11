@@ -1,22 +1,29 @@
 class Solution {
     public int[] solution(int n, long left, long right) {
-        // 1) 1차원 배열의 크기를 미리 초기화
-        int len = (int)(right - left) + 1;
+        
+        // [재도전 퀘스트: 내일의 나에게]
+        // 1. 결과 배열 크기 설정 (right - left + 1)
+        int len = (int) (right - left + 1);
         int[] arr = new int[len];
 
-        // 2) left ~ right 사이를 움직이는 인덱스를 k라고 하자.
+        // 2. 반복문 제어 (결과 배열 index 0부터 len-1까지)
         for (int i = 0; i < len; i++) {
-            long k = left + i; // 파라미터로 주어진 left, right가 long 타입이기 때문에 움직이고자 하는 인덱스 k도 long 타입으로 초기화해야함
-            // 조건1 1 ≤ n ≤ 10^7과 조건2 0 ≤ left ≤ right < n^2를 조합하면 인덱스 최대치인 right가 n보다는 크다는 것을 의미
-            // 따라서, row, col을 구할 때는 k를 크게 잡는다.
-            int row = (int)(k / n);
-            int col = (int) (k % n);
+            // 3. 실제 인덱스 k 소환 (left + i)
+            long k = left + i;
 
-            // 빈칸에 채워야하는 원소는 max(row, col) + 1 (row와 col을 배열처럼 0부터 시작한다고 했을 때)
-            //! 애초에 row와 col을 0부터 시작하면 0부터 시작하는 인덱스 k를 가진 1차원 배열과 offset을 맞출 수가 있다!
-            arr[i] = Math.max(row, col) + 1;
+            // 4. n차 격자 좌표 매핑 (row = k / n, col = k % n)
+            long row = k / n;
+            long col = k % n;
+
+            // 5. 규칙 적용 (Math.max(row, col) + 1)
+            // ? [비밀 단서 1] 세상 전체의 크기(n^2)는 long이지만, 한 줄의 길이(n)는 int 범위임을 기억하라.
+            // ? [비밀 단서 2] 보물은 전체 지도(k번지)에 있지만, 내 가방(arr)은 0번(i)부터 채워야 한다.
+            // ! 이제야 깨달았음. value는 이미 2차원에서 정해진 값인데, 그것을 1차원으로 자른 것이고, 그 부분을 left, right에 따라
+            // 슬라이딩 윈도우처럼 움직이는 구조이기 때문에 고정값인 value를 1차원으로 설정한 arr에 반복문으로 채워나가기만 하면 되는거였음.
+            arr[i] = (int) Math.max(row, col) + 1;
         }
-        
-        return arr; 
+
+        return arr;
+    
     }
 }
