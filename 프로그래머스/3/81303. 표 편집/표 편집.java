@@ -2,65 +2,71 @@ import java.util.*;
 
 class Solution {
     public String solution(int n, int k, String[] cmd) {
-        // 행의 개수만큼 prev와 next의 개수를 초기화
+        // 표를 Doubly-Linked List로 접근하기 위해 원시 배열로 초기화
         int[] prev = new int[n];
         int[] next = new int[n];
 
-        // 'C'와 'Z'를 수행하기 위한 스택
-        Stack<Integer> st = new Stack<>();
-        boolean[] isDeleted = new boolean[n];
-
-        // 행의 개수를 초기화
+        // 표를 크기 n만큼 초기화(0 ~ n - 1)
         for (int i = 0; i < n; i++) {
-            prev[i] = i - 1; // 0 ≤ k < n이기 때문에 k는 0번부터 시작
+            prev[i] = i - 1; // -1로 없음을 표시
             next[i] = i + 1;
         }
-        next[n - 1] = -1; // 마찬가지
+        next[n - 1] = -1; // n 행은 없음
+
+        // 스택 초기화
+        Stack<Integer> s = new Stack<>();
+
+        // 표의 상태와 처음 주어진 표의 상태를 비교하기 위한 boolean 타입의 isDeleted 배열을 표의 크기로 초기화
+        boolean[] isDeleted = new boolean[n];
 
         // cmd 순회
-        for (String s : cmd) {
-            // 명령어 매핑
-            Character arrow = s.charAt(0);
-            //! 'C'나 'Z'는 X값이 없기 때문에 여기에 int x = Integer.parseInt(s.substring(2));를 작성하면 OutOfIndex 에러가 발생함!
+        // ? 프레임워크(스택, 큐, 해시맵 등)를 읽으면서 동시에 쓰기를 진행하면 ConcurrentException이 터짐, But 컨테이너
+        // 타입이 아닌 것은 상관 X
+        for (String str : cmd) {
+            String result = str;
+            Character command = result.charAt(0); // 명령어
 
-            switch (arrow) {
-                // X는 1 이상 300,000 이하인 자연수
+            switch (command) {
                 case 'U':
-                    int x = Integer.parseInt(s.substring(2));
+                    // ! X가 없으면 예외가 터지기 때문에 X가 존재하는 'U' 아니면 'D'에서만 파싱을 한다
+                    int x = Integer.parseInt(result.substring(2)); // 횟수
                     while (x-- > 0) {
-                        k = prev[k];
+                        k = prev[k]; // 현재 선택된 행인 k를 위로 이동(e.g. k = 2이면, prev[k]인 1을 k로 업데이트)
                     }
                     break;
                 case 'D':
-                    int y = Integer.parseInt(s.substring(2));
+                    int y = Integer.parseInt(result.substring(2)); // 횟수
                     while (y-- > 0) {
-                        k = next[k];
+                        k = next[k]; // 현재 선택된 행인 k를 위로 이동
                     }
                     break;
                 case 'C':
-                    // prev[2] = 1, next[1] = 2, next[2] = 3, prev[3] = 2
-                    //! if문의 조건이 참이 되려면 '내 윗집'이 실제로 존재해야 합니다.("1번 사물함한테 2번 말고 3번으로 연결해!"가 가능하기 위해서는 '1번 사물함'이 존재해야 한다.)
-                    //* 함성함수의 정의 조건으로 치환해서 생각하면 훨씬 쉽다
+                    // 현재 선택된 행을 '삭제'
+                    s.push(k);
+
+                    // 삭제 상태를 표시
+                    isDeleted[k] = true;
+
+                    // 다음 행으로 연결하기 위해서는 이전 행이 존재해야 한다.
                     if (prev[k] != -1) {
                         next[prev[k]] = next[k];
                     }
-                    // 마찬가지
                     if (next[k] != -1) {
                         prev[next[k]] = prev[k];
                     }
-                    st.push(k);
-                    isDeleted[k] = true;
-                    // 현재 선택된 행을 삭제한 후, 바로 아래 행을 선택합니다. 단, 삭제된 행이 가장 마지막 행인 경우 바로 윗 행을 선택합니다.
-                    if (next[k] == -1) {
-                        k = prev[k];
-                    } else {
-                        k = next[k];
-                    } 
+
+                    // 바로 아래 행을 선택, 단, 현재 선택된 삭제된 행이 가장 마지막 행인 경우 바로 윗 행을 선택
+                    k = next[k] == -1 ? prev[k] : next[k];
                     break;
+
                 case 'Z':
-                    int z = st.pop();
+                    // '가장 최근에 삭제된 행'을 '원래대로 복구'
+                    int z = s.pop();
+
+                    // 삭제 상태를 복구
                     isDeleted[z] = false;
-                    // 가장 최근에 삭제된 행을 원래대로 복구합니다.
+
+                    // ? z에 대한 연결은 이미 표를 크기 n만큼 초기화에서 연결이 되어있기 때문에 끊어진 연결만 다시 원복시켜주면 됨
                     if (prev[z] != -1) {
                         next[prev[z]] = z;
                     }
@@ -72,18 +78,23 @@ class Solution {
             }
         }
 
-        // isDeleted 순회해서 O, X 마킹
-        // 삭제되지 않은 행은 O, 삭제된 행은 X로 표시
+        
+
+        // 3. 여기서 StringBuilder를 사용함으로써 O(N^2) 방지!
         StringBuilder sb = new StringBuilder();
+
+        // 4. isDeleted를 for문으로 순회
         for (boolean b : isDeleted) {
-            if (b == true) {
-                sb.append("X");
-            } else {
+            // 4.1. 삭제되지 않은 행은 O == false면 "O"
+            if (b == false) {
                 sb.append("O");
+            } else {
+                // 4.2. 삭제된 행은 X == true면 "X"
+                sb.append("X");
             }
         }
 
+        // 5. return sb.toString()
         return sb.toString();
     }
-
 }
