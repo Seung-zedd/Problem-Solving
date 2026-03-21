@@ -2,62 +2,55 @@ import java.util.*;
 
 class Solution {
     public String solution(int n, int k, String[] cmd) {
+        // 행 번호를 먼저 완성(0번 ~ n-1번)
         int[] prev = new int[n];
         int[] next = new int[n];
-
-        // 표 초기화(0 <= k <= n - 1)
         for (int i = 0; i < n; i++) {
-            prev[i] = i - 1; // -1은 없음을 의미
+            prev[i] = i - 1; // 0번 이전은 없으므로 -1
             next[i] = i + 1;
         }
         next[n - 1] = -1;
 
-        // 행 제거 및 복구를 위한 스택
+        // 행을 삭제 및 복구하기 위한 스택<행 번호를 저장>
         Deque<Integer> st = new ArrayDeque<>();
 
-        // 삭제 상태 표시를 위한 배열
+        // 표의 상태 == boolean으로 처리하라는 의미
         boolean[] isDeleted = new boolean[n];
 
-        // 명령어 순회
-        for (String s : cmd) {
-            Character command = s.charAt(0);
+        // cmd 순회
+        for (String c : cmd) {
+            Character command = c.charAt(0);
 
             switch (command) {
                 case 'U':
-                    int x = Integer.parseInt(s.substring(2));
-                    // 행을 위로 이동
+                    int x = Integer.parseInt(c.substring(2));
+                    // x만큼 이동
                     while (x-- > 0) {
-                        k = prev[k];
+                        k = prev[k]; // 현재 선택한 k행을 x만큼 위로 이동
                     }
                     break;
                 case 'D':
-                    int y = Integer.parseInt(s.substring(2));
-                    // 행을 아래로 이동
+                    int y = Integer.parseInt(c.substring(2));
                     while (y-- > 0) {
-                        k = next[k];
+                        k = next[k]; // 현재 선택한 k행을 x만큼 아래로 이동
                     }
                     break;
                 case 'C':
-                    // 선택된 행을 제거
-                    st.push(k);
+                    st.push(k); // 현재 선택한 행 제거
                     isDeleted[k] = true;
-
-                    // 연결을 끊고 다음 부분으로 연결
                     if (prev[k] != -1) {
                         next[prev[k]] = next[k];
                     }
                     if (next[k] != -1) {
                         prev[next[k]] = prev[k];
                     }
-                    // 현재 선택된 행을 삭제한 후, 바로 아래 행을 선택합니다. 단, 삭제된 행이 가장 마지막 행인 경우 바로 윗 행을 선택합니다.
+                    // 선택된 행 삭제 > 아래 행으로 이동, 단 if 선택된 행 삭제 행이 마지막 행: 위로 이동
                     k = next[k] == -1 ? prev[k] : next[k];
                     break;
                 case 'Z':
-                    // 선택된 행을 복구
                     int z = st.pop();
                     isDeleted[z] = false;
-
-                    // 끊겨진 연결을 다시 재연결
+                    // 연결 다시 조립
                     if (prev[z] != -1) {
                         next[prev[z]] = z;
                     }
@@ -69,8 +62,9 @@ class Solution {
             }
         }
 
+        // 삭제되지 않은 행은 O, 삭제된 행은 X로 표시하여 문자열 형태로 return
         StringBuilder sb = new StringBuilder();
-        // 삭제되지 않은 행은 O, 삭제된 행은 X로 표시
+
         for (boolean b : isDeleted) {
             if (b == true) {
                 sb.append("X");
@@ -78,7 +72,7 @@ class Solution {
                 sb.append("O");
             }
         }
-        
+    
         return sb.toString();
     }
 }
