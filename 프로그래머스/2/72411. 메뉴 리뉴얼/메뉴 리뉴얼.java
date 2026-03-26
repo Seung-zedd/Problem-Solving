@@ -4,67 +4,67 @@ import java.util.stream.*;
 class Solution {
     public String[] solution(String[] orders, int[] course) {
         List<String> answer = new ArrayList<>();
+        Map<String, Integer> countMap = new HashMap<>();
 
-        // 1. 백트래킹을 사용해서 course[i]에 맞게 개수 조합
-        // ? 조합의 2^N에서의 N은 orders[i].length를 의미하므로 2^10 = 1024
+        // course를 순회하면서 단품메뉴 조합 가지 수 탐색
         for (int i : course) {
-            // 2. 각 조합이 몇 번 발생했는지를 알기 위한 countMap
-            // ? 왜냐하면 i가지 조합마다 다르게 빈도를 조사해야 하기 때문
-            Map<String, Integer> countMap = new HashMap<>();
+            // 가지 수가 바뀔 때마다 초기화
+            countMap.clear();
             for (String order : orders) {
-                // order -> char[]로 변경
+                // 내부 오름차순 정렬을 하기 위해 먼저 toCharArray로 변환
                 char[] beOrdered = order.toCharArray();
-                // 배열의 각 원소에 저장된 문자열 또한 알파벳 오름차순으로 정렬되어야 합니다.
-                //? 하나의 조합 키로 통일하여 집계하기 위해 내부 정렬(e.g. "XY" == "YX")
-                Arrays.sort(beOrdered); 
-                // char[] -> String
-                String ordered = String.valueOf(beOrdered);
+                Arrays.sort(beOrdered);
+                String ordered = String.valueOf(beOrdered); // 다시 String으로 변환
 
+                // 백트래킹 조합
+                // 2^10 
                 List<String> result = combine(ordered, i);
+
+                // 분할 및 소집
                 for (String r : result) {
+                    // 집계
                     countMap.merge(r, 1, Integer::sum);
                 }
             }
-
-            // 최대 빈도 수 탐색
+            // 최대 빈도수 탐색 && value >= 2로 검증
             int maxValue = Integer.MIN_VALUE;
-            for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-                maxValue = Math.max(entry.getValue(), maxValue);
+            for (Integer v : countMap.values()) {
+                maxValue = Math.max(maxValue, v);
             }
-            // 최소 2인 이상 검증
+
             for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-                // 조합의 빈도 수가 2인 이상이면서 가장 많이 주문한 조합
-                //! if (maxValue >= 2)만 작성하면 2 미만 이더라도 entry의 조합들이 저장될 수가 있어서 논리적 오류 발생!
-                if (maxValue >= 2 && entry.getValue() == maxValue) {
+                if (entry.getValue() == maxValue && entry.getValue() >= 2) {
                     answer.add(entry.getKey());
                 }
             }
         }
 
-        Collections.sort(answer); // 정답은 각 코스요리 메뉴의 구성을 문자열 형식으로 배열에 담아 사전 순으로 오름차순 정렬해서 return
+        // 외부 오름차순 정렬
+        Collections.sort(answer);
+
         return answer.stream().toArray(String[]::new);
     }
 
-    // 백트래킹 템플릿
-    private static List<String> combine(String order, int r) {
-        // 답변 리스트 초기화
+    private List<String> combine(String ordered, int k) {
         List<String> ans = new ArrayList<>();
-        backtrack(new ArrayList<>(), order, ans, 0, r);
+        List<Character> curr = new ArrayList<>();
+
+        combineHelper(ordered, ans, curr, k, 0);
+
         return ans;
     }
 
-    private static void backtrack(List<Character> curr, String order, List<String> ans,
-            int start, int r) {
+    private void combineHelper(String ordered, List<String> ans, List<Character> curr, int k, int start) {
         // base condition
-        if (curr.size() == r) {
-            ans.add(curr.stream().map(String::valueOf).collect(Collectors.joining())); // Char 타입의 curr를 String으로 매핑하는데(화살표로 매핑하는 과정), Collectors를 사용해서 concatnate를 한다
+        if (curr.size() == k) {
+            ans.add(curr.stream().map(String::valueOf).collect(Collectors.joining())); // char 타입을 불변 객체인 String으로 변환해서 삽입
             return;
         }
-        // 후보군 탐색
-        for (int i = start; i < order.length(); i++) {
-            curr.add(order.charAt(i)); // 선택
-            backtrack(curr, order, ans, i + 1, r); // i + 1부터 다시 탐색
-            curr.remove(curr.size() - 1); // 마지막 원소 제거 (backtrack)
+
+        for (int i = start; i < ordered.length(); i++) {
+            curr.add(ordered.charAt(i));
+            combineHelper(ordered, ans, curr, k, i + 1);
+            curr.remove(curr.size() - 1);
         }
     }
 }
