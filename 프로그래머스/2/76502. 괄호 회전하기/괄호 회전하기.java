@@ -3,52 +3,50 @@ import java.util.stream.*;
 
 class Solution {
     public int solution(String s) {
-        // 0 ≤ x < (s의 길이)로 회전하기 위해 그냥 s를 for문으로 순회
-        int answer = 0;
-
+        int count = 0;
+        // 1. s를 순회하면서 하나씩 x칸만큼 회전
+        // x는 인덱스
         for (int i = 0; i < s.length(); i++) {
-            String result = leftRotate(i, s);
-            answer += validParenthesis(result);
+            // 1-Pass: 연산
+            String result = leftRotateWithX(s, i);
+            // 2-Pass: 검증
+            count += isValidParenthesis(result);
         }
-        return answer;
+
+        return count;
     }
 
-    private static String leftRotate(int x, String s) {
-        // 원형 큐 초기화
+    private static String leftRotateWithX(String s, int x) {
         Deque<Character> q = new ArrayDeque<>();
-        // 원형 큐에 문자열 삽입
+        // 먼저 q에 채운다
         for (int i = 0; i < s.length(); i++) {
             q.offer(s.charAt(i));
         }
 
-        // 요세푸스 순열 응용
-        for (int i = 0; i < x; i++) {
+        // x칸만큼 회전
+        while (x-- > 0) {
             q.offer(q.poll());
         }
-
+        //! q.toString()은 콤마를 넣어서 리턴
+        // 대신에 stream API를 사용해서 collect(Collectors.joining())을 쓴다
         return q.stream().map(String::valueOf).collect(Collectors.joining());
     }
 
-    private static int validParenthesis(String s) {
-        // 스택 초기화
+    private static int isValidParenthesis(String s) {
         Deque<Character> st = new ArrayDeque<>();
-        // 스택에 문자열 삽입
         for (int i = 0; i < s.length(); i++) {
             Character c = s.charAt(i);
-            // 짝이 맞으면 pop()
-            if (!st.isEmpty() && ((st.peekLast() == '(' && c == ')') || st.peekLast() == '{' && c == '}' || st
-                    .peekLast() == '[' && c == ']')) {
-                st.pollLast();
+            // 스택에 이미 열린 괄호가 있고 짝이 맞으면 pop()
+            if (!st.isEmpty() && ((st.peek() == '(' && c == ')') || (st.peek() == '{' && c == '}')
+                    || (st.peek() == '[' && c == ']'))) {
+                st.pop();
             } else if (c == ')' || c == '}' || c == ']') {
                 return 0;
-            }
-            // 열린 괄호는 무조건 push
-            else {
-                st.offer(c);
+            } else {
+                st.push(s.charAt(i));
             }
         }
 
-        return st.isEmpty() ? 1 : 0;
-
+        return st.size() == 0 ? 1 : 0;
     }
 }
