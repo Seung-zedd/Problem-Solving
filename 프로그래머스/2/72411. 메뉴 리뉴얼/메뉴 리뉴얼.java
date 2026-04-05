@@ -3,63 +3,62 @@ import java.util.stream.*;
 
 class Solution {
     public String[] solution(String[] orders, int[] course) {
-        // course를 순회하면서 단품메뉴 조합 가지 수 탐색
-        // countMap은 힙 메모리 절약을 위해 지역변수로 초기화한다, but 해시맵에 저장을 하고 나면 반드시 clear()해준다.
         Map<String, Integer> countMap = new HashMap<>();
-        List<String> ans = new ArrayList<>();
-        for (int i : course) {
-            // 2-Pass 전략: 먼저 해시맵으로 조합 집계
-            for (String order : orders) {
-                // 내부 오름차순 정렬
-                char[] beOrdered = order.toCharArray();
+        List<String> answer = new ArrayList<>();
+
+        // 1. course를 순회
+        for (int c : course) {
+            // 단품메뉴 배열을 순회
+            for (String o : orders) {
+                // 오름차순 정렬
+                char[] beOrdered = o.toCharArray();
                 Arrays.sort(beOrdered);
                 String ordered = String.valueOf(beOrdered);
-                List<String> result = combine(ordered, i); // 백트래킹 조합(T.C.:2^10 = 1024)
+                List<String> result = combine(ordered, c);
                 for (String r : result) {
                     countMap.merge(r, 1, Integer::sum);
                 }
             }
 
-            // 분할 및 소집
-            int maxValue = Integer.MIN_VALUE;
+            // 최대 빈도수 탐색 && value >= 2로 검증
+            // 1. 최대 빈도수 탐색
+            int maxVal = Integer.MIN_VALUE;
             for (Integer v : countMap.values()) {
-                maxValue = Math.max(maxValue, v);
+                maxVal = Math.max(maxVal, v);
             }
 
-            // 2. 최대 빈도수 및 value >= 2 검증
+            // 2. value >= 2 검증
             for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-                if (entry.getValue() == maxValue && entry.getValue() >= 2) {
-                    ans.add(entry.getKey());
+                if (entry.getValue() == maxVal && entry.getValue() >= 2) {
+                    answer.add(entry.getKey());
                 }
             }
 
             countMap.clear();
+            Collections.sort(answer);
         }
-        // 외부 정렬
-        Collections.sort(ans);
-
-        return ans.stream().toArray(String[]::new);
+        return answer.stream().toArray(String[]::new);
     }
 
-    private static List<String> combine(String str, int k) {
-        List<String> ans = new ArrayList<>();
-        List<Character> curr = new ArrayList<>();
+    private static List<String> combine(String ordered, int r) {
+        List<String> result = new ArrayList<>();
+        Deque<Character> curr = new ArrayDeque<>();
+        combineHelper(ordered, result, curr, r, 0);
 
-        combineHelper(str, ans, curr, k, 0);
-        return ans;
+        return result;
     }
 
-    private static void combineHelper(String str, List<String> ans, List<Character> curr, int k, int start) {
+    private static void combineHelper(String ordered, List<String> result, Deque<Character> curr, int r, int start) {
         // base condition
-        if (curr.size() == k) {
-            ans.add(curr.stream().map(String::valueOf).collect(Collectors.joining()));
+        if (curr.size() == r) {
+            result.add(curr.stream().map(String::valueOf).collect(Collectors.joining()));
         }
-        
 
-        for (int i = start; i < str.length(); i++) {
-            curr.add(str.charAt(i));
-            combineHelper(str, ans, curr, k, i + 1);
-            curr.remove(curr.size() - 1);
+        for (int i = start; i < ordered.length(); i++) {
+            char c = ordered.charAt(i);
+            curr.addLast(c); // push()
+            combineHelper(ordered, result, curr, r, i + 1); // 잠수
+            curr.removeLast(); // pop()
         }
     }
 }
