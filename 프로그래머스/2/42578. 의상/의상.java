@@ -2,17 +2,19 @@ import java.util.*;
 
 class Solution {
     public int solution(String[][] clothes) {
+        // <종류, 개수> 카운팅
         Map<String, Integer> map = new HashMap<>();
-        for (String[] c : clothes) {
-            map.merge(c[1], 1, Integer::sum);
+        for (String[] cloth : clothes) {
+            map.merge(cloth[1], 1, Integer::sum);
         }
 
-        // 카티션 프로덕트 - 1
-        int ans = 1;
-        for (Map.Entry<String, Integer> entry : map.entrySet()) {
-            ans *= entry.getValue() + 1;
+        // (카테시안 곱 + 1) - 1
+        //! 안 입는 경우도 선택지로 포함시키면 문제 구조가 훨씬 쉬워진다
+        int mul = 1;
+        for (int i : map.values()) {
+            mul *= i + 1;
         }
 
-        return ans - 1;
+        return mul - 1;
     }
 }
