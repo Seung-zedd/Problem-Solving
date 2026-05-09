@@ -2,16 +2,15 @@ import java.util.*;
 
 class Solution {
     public boolean solution(String[] phone_book) {
-        // 전화번호 해시셋으로 초기화
-        Set<String> set = new HashSet<>(Arrays.asList(phone_book));
-        
-        // 접두어 생성
-        for (String num : phone_book) {
-            for (int i = 1; i < num.length(); i++) {
-                String prefix = num.substring(0, i);
-                if (set.contains(prefix)) {
+        Arrays.sort(phone_book);
+
+        for (int i = 0; i < phone_book.length; i++) {
+            if (i + 1 < phone_book.length) {
+                String prefix = phone_book[i]; // 접두어를 가장 짧은 전화번호로 설정
+                String tobeCompared = phone_book[i + 1];
+                if (tobeCompared.startsWith(prefix)) {
                     return false;
-                } 
+                }
             }
         }
 
